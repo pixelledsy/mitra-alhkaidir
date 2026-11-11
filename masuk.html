@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Masuk Admin | Mitra Al-Khaidir</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&family=Young+Serif&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#06361f">
+<link rel="stylesheet" href="/sub.css">
+<link rel="stylesheet" href="/news.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="logo" href="/"><span class="lg" aria-hidden="true"></span><span>Mitra Al-Khaidir<small>Boarding School</small></span></a>
+<nav aria-label="Menu utama"><a href="/#beranda">Beranda</a><a href="/#lembaga">Lembaga</a><a href="/#kehidupan">Kehidupan</a><a href="/#galeri">Galeri</a><a href="/berita">Berita</a><a href="/#ppdb">PPDB</a><a href="/#kontak">Contact</a></nav></div></header>
+<main><section class="sec"><div class="wrap">
+  <p id="vload" class="nempty">Memeriksa sesi...</p>
+
+  <div id="vlogin" hidden><div class="lcard">
+    <span class="lg big" aria-hidden="true" style="display:inline-block"></span>
+    <h1>Masuk admin</h1><p>Khusus pengelola website.</p>
+    <form id="fl" autocomplete="on">
+      <label class="fld">Nama pengguna<input name="username" id="u" autocomplete="username" autocapitalize="none" required></label>
+      <label class="fld">Kata sandi<input type="password" name="password" id="p" autocomplete="current-password" required></label>
+      <button class="btn gold" type="submit" id="bl" style="width:100%">Masuk</button>
+      <p class="err" id="el" role="alert"></p>
+    </form>
+  </div></div>
+
+  <div id="vdash" hidden>
+    <div class="bar2"><div><h1 style="font-size:2rem">Kelola berita</h1><span style="color:var(--muted)">Masuk sebagai <b id="who"></b></span></div>
+      <div class="row2"><a class="btn ghost sm" href="/berita" target="_blank" rel="noopener">Lihat halaman berita</a><button class="btn ghost sm" id="out" type="button">Keluar</button></div></div>
+    <div class="warn" id="dbwarn" hidden><b>Penyimpanan berita belum aktif.</b> Berita belum bisa disimpan sampai database Redis disambungkan ke proyek Vercel. Ikuti langkah di <code>PANDUAN-ADMIN.md</code>, lalu deploy ulang.</div>
+    <div class="adm">
+      <div class="panelc"><h2 id="ft">Tulis berita baru</h2>
+        <form id="fn">
+          <label class="fld">Judul<input id="t" maxlength="150" required></label>
+          <div class="row2" style="align-items:flex-start;gap:1rem">
+            <label class="fld" style="flex:1;min-width:10rem">Kategori<select id="c"></select></label>
+            <label class="fld" style="flex:1;min-width:10rem">Tanggal<input type="date" id="d" required></label>
+          </div>
+          <label class="fld">Gambar sampul (boleh dikosongkan)<input type="file" id="im" accept="image/*"><small>Gambar otomatis dikecilkan agar ringan.</small></label>
+          <img id="pv" class="prev" alt="Pratinjau gambar sampul" hidden>
+          <label class="fld" id="rmw" hidden style="font-weight:400"><input type="checkbox" id="rm" style="display:inline;width:auto;margin-right:.5rem">Hapus gambar sampul</label>
+          <label class="fld">Isi berita<textarea id="b" required></textarea><small>Pisahkan paragraf dengan satu baris kosong.</small></label>
+          <div class="row2"><button class="btn gold" type="submit" id="sv">Terbitkan</button><button class="btn ghost" type="button" id="cn" hidden>Batal edit</button></div>
+          <p class="err" id="em" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="panelc"><h2>Berita yang sudah terbit</h2><ul class="alist" id="al"><li>Memuat...</li></ul></div>
+    </div>
+  </div>
+</div></section></main>
+<footer><div class="wrap"><span>&copy; 2026 Yayasan Mitra Al-Khaidir. Seluruh hak cipta dilindungi.</span><span><a href="/">Kembali ke beranda</a> | <a href="/masuk">Masuk admin</a></span></div></footer>
+<script src="/news.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var N=window.NEWS,$=function(i){return document.getElementById(i)},CATS=['Pengumuman','Kegiatan','Prestasi','PPDB','Umum'];
+  var editId=null,img;
+  CATS.forEach(function(c){var o=document.createElement('option');o.value=o.textContent=c;$('c').appendChild(o)});
+  function api(path,o){o=o||{};o.credentials='same-origin';o.headers={'Content-Type':'application/json'};
+    return fetch(path,o).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok){var e=new Error(j.error||'Gagal.');e.status=r.status;throw e}return j})})}
+  function view(v){$('vload').hidden=v!=='load';$('vlogin').hidden=v!=='login';$('vdash').hidden=v!=='dash'}
+  function today(){return new Date(Date.now()+7*36e5).toISOString().slice(0,10)}
+  function msg(t,ok){var e=$('em');e.textContent=t;e.className='err'+(ok?' ok':'')}
+  function reset(){editId=null;img=undefined;$('fn').reset();$('d').value=today();$('pv').hidden=true;$('rmw').hidden=true;$('ft').textContent='Tulis berita baru';$('sv').textContent='Terbitkan';$('cn').hidden=true}
+  function enter(s){view('dash');$('who').textContent=s.user;$('dbwarn').hidden=!!s.db;reset();list()}
+  api('/api/session').then(function(s){s.auth?enter(s):view('login')}).catch(function(){view('login')});
+
+  $('fl').addEventListener('submit',function(e){e.preventDefault();var b=$('bl');b.disabled=true;$('el').textContent='';
+    api('/api/login',{method:'POST',body:JSON.stringify({username:$('u').value.trim(),password:$('p').value})})
+      .then(function(r){$('p').value='';enter(r)}).catch(function(x){$('el').textContent=x.message}).then(function(){b.disabled=false})});
+  $('out').onclick=function(){api('/api/session',{method:'POST',body:'{}'}).then(function(){view('login')})};
+
+  function fail(x){if(x.status===401){view('login');$('el').textContent='Sesi berakhir. Silakan masuk lagi.'}else msg(x.message)}
+  function list(){api('/api/news?limit=100&_='+Date.now()).then(function(r){var ul=$('al');ul.textContent='';
+    if(!r.items.length){var li0=document.createElement('li');li0.textContent='Belum ada berita.';ul.appendChild(li0);return}
+    r.items.forEach(function(n){var li=document.createElement('li');
+      var b=document.createElement('b');b.textContent=n.title;var s=document.createElement('span');s.textContent=n.category+' | '+N.fmt(n.date);
+      var row=N.el('div','row2');
+      var v=N.el('a','btn ghost sm','Lihat');v.href='/berita?id='+encodeURIComponent(n.id);v.target='_blank';v.rel='noopener';
+      var ed=N.el('button','btn ghost sm','Edit');ed.type='button';ed.onclick=function(){edit(n.id)};
+      var dl=N.el('button','btn red sm','Hapus');dl.type='button';dl.onclick=function(){if(confirm('Hapus berita ini?\n\n'+n.title))api('/api/news?id='+encodeURIComponent(n.id),{method:'DELETE'}).then(function(){if(editId===n.id)reset();list();msg('Berita dihapus.',true)}).catch(fail)};
+      row.appendChild(v);row.appendChild(ed);row.appendChild(dl);li.appendChild(b);li.appendChild(s);li.appendChild(row);ul.appendChild(li)})
+  }).catch(function(x){var ul=$('al');ul.textContent='';var li=document.createElement('li');li.textContent=x.message;ul.appendChild(li)})}
+
+  function edit(id){api('/api/news?id='+encodeURIComponent(id)+'&_='+Date.now()).then(function(r){var n=r.item;editId=id;img=undefined;
+    $('t').value=n.title;$('c').value=n.category;$('d').value=n.date;$('b').value=n.body;$('im').value='';$('rm').checked=false;
+    $('pv').hidden=!n.image;if(n.image)$('pv').src=n.image;$('pv').style.opacity=1;$('rmw').hidden=!n.image;
+    $('ft').textContent='Edit berita';$('sv').textContent='Simpan perubahan';$('cn').hidden=false;msg('');window.scrollTo({top:0,behavior:'smooth'})}).catch(fail)}
+  $('cn').onclick=function(){reset();msg('')};
+  $('rm').onchange=function(){img=this.checked?null:undefined;$('pv').style.opacity=this.checked?.35:1};
+
+  function shrink(file,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){
+    var s=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);var q=.8,d=c.toDataURL('image/webp',q),mt='image/webp';if(d.indexOf('data:image/webp')!==0){mt='image/jpeg';d=c.toDataURL(mt,q)}
+    while(d.length>550000&&q>.35){q-=.1;d=c.toDataURL(mt,q)}cb(d.length>600000?null:d)};
+    im.onerror=function(){cb(null)};im.src=fr.result};fr.readAsDataURL(file)}
+  $('im').onchange=function(){var f=this.files[0];if(!f)return;msg('Memproses gambar...');
+    shrink(f,function(d){if(!d){img=undefined;msg('Gambar tidak bisa dipakai. Coba gambar lain.');return}img=d;$('pv').src=d;$('pv').hidden=false;$('pv').style.opacity=1;$('rm').checked=false;msg('Gambar siap ('+Math.round(d.length*.75/1024)+' KB).',true)})};
+
+  $('fn').addEventListener('submit',function(e){e.preventDefault();var b=$('sv');b.disabled=true;msg('Menyimpan...');
+    var p={title:$('t').value.trim(),category:$('c').value,date:$('d').value,body:$('b').value};if(img!==undefined)p.imageData=img;
+    api(editId?'/api/news?id='+encodeURIComponent(editId):'/api/news',{method:editId?'PUT':'POST',body:JSON.stringify(p)})
+      .then(function(){var was=editId;reset();list();msg(was?'Perubahan disimpan.':'Berita berhasil diterbitkan.',true)}).catch(fail).then(function(){b.disabled=false})});
+});
+</script>
+</body>
+</html>

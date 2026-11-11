@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Berita | Mitra Al-Khaidir Boarding School</title>
+<meta name="description" content="Berita dan kegiatan terbaru dari Mitra Al-Khaidir Boarding School, Cianjur.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&family=Young+Serif&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#06361f">
+<link rel="stylesheet" href="/sub.css">
+<link rel="stylesheet" href="/news.css">
+<script src="/news.js" defer></script>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="logo" href="/"><span class="lg" aria-hidden="true"></span><span>Mitra Al-Khaidir<small>Boarding School</small></span></a>
+<nav aria-label="Menu utama"><a href="/#beranda">Beranda</a><a href="/#lembaga">Lembaga</a><a href="/#kehidupan">Kehidupan</a><a href="/#galeri">Galeri</a><a href="/berita" class="on">Berita</a><a href="/#ppdb">PPDB</a><a href="/#kontak">Contact</a></nav></div></header>
+<main>
+  <div class="ph"><div class="wrap"><h1>Berita</h1><p>Kabar dan kegiatan terbaru dari Mitra Al-Khaidir.</p></div></div>
+  <section class="sec"><div class="wrap">
+    <div id="vlist">
+      <div class="nchips" id="chips" role="group" aria-label="Pilih kategori"></div>
+      <div class="news" id="grid" aria-live="polite"><p class="nempty">Memuat berita...</p></div>
+      <div class="more"><button class="btn gold" id="more" type="button" hidden>Muat lebih banyak</button></div>
+    </div>
+    <article class="art" id="vart" hidden></article>
+  </div></section>
+</main>
+<footer><div class="wrap"><span>&copy; 2026 Yayasan Mitra Al-Khaidir. Seluruh hak cipta dilindungi.</span><span><a href="/">Kembali ke beranda</a> | <a href="/masuk">Masuk admin</a></span></div></footer>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var N=window.NEWS,CATS=['Semua','Pengumuman','Kegiatan','Prestasi','PPDB','Umum'];
+  var id=new URLSearchParams(location.search).get('id');
+  if(id)return article(id);
+  var cat='',off=0,PER=9,grid=document.getElementById('grid'),more=document.getElementById('more'),chips=document.getElementById('chips');
+  CATS.forEach(function(c,i){var b=N.el('button',null,c);b.type='button';b.setAttribute('aria-pressed',i===0);b.onclick=function(){
+    chips.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});cat=i?c:'';off=0;grid.textContent='';load()};chips.appendChild(b)});
+  more.onclick=load;
+  function load(){
+    N.get('limit='+PER+'&offset='+off+(cat?'&cat='+encodeURIComponent(cat):'')).then(function(r){
+      if(!off)grid.textContent='';
+      if(!r.items.length&&!off)grid.appendChild(N.empty(r));
+      r.items.forEach(function(n){grid.appendChild(N.card(n))});
+      off+=r.items.length;more.hidden=off>=r.total;
+    }).catch(function(){grid.textContent='';grid.appendChild(N.empty());more.hidden=true});
+  }
+  load();
+  function article(id){
+    document.getElementById('vlist').hidden=true;var a=document.getElementById('vart');a.hidden=false;
+    N.get('id='+encodeURIComponent(id)).then(function(r){
+      var n=r.item;document.title=n.title+' | Mitra Al-Khaidir';
+      var back=N.el('a','back','\u2190 Semua berita');back.href='/berita';a.appendChild(back);
+      var m=N.el('div','nmeta');m.appendChild(N.el('span','ncat',n.category));m.appendChild(N.el('time',null,N.fmt(n.date)));a.appendChild(m);
+      a.appendChild(N.el('h1',null,n.title));
+      if(n.image){var im=new Image();im.src=n.image;im.alt='';im.className='cover';a.appendChild(im)}
+      n.body.split(/\n{2,}/).forEach(function(par){var p=N.el('p');par.split('\n').forEach(function(l,i){if(i)p.appendChild(document.createElement('br'));p.appendChild(document.createTextNode(l))});a.appendChild(p)});
+      var act=N.el('div','act'),sh=N.el('button','btn gold','Bagikan');sh.type='button';
+      sh.onclick=function(){if(navigator.share){navigator.share({title:n.title,url:location.href}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){sh.textContent='Tautan disalin'})}};
+      var bk=N.el('a','btn ghost','Kembali ke daftar berita');bk.href='/berita';act.appendChild(sh);act.appendChild(bk);a.appendChild(act);
+      N.get('limit=4').then(function(l){var o=l.items.filter(function(x){return x.id!==n.id}).slice(0,3);if(!o.length)return;
+        var rel=N.el('div','rel');rel.appendChild(N.el('h2',null,'Berita lainnya'));var g=N.el('div','news');o.forEach(function(x){g.appendChild(N.card(x))});rel.appendChild(g);a.appendChild(rel)}).catch(function(){});
+    }).catch(function(){a.appendChild(N.el('p','nempty','Berita tidak ditemukan.'));var bk=N.el('a','btn ghost','Kembali ke daftar berita');bk.href='/berita';a.appendChild(bk)});
+  }
+});
+</script>
+</body>
+</html>
