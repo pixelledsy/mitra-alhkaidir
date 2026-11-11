@@ -2,7 +2,7 @@
 
 ## Cara kerjanya
 - Halaman publik: `/berita` (daftar dan isi berita) dan bagian "Berita terbaru" di beranda.
-- Halaman admin: `/masuk`. Setelah masuk, kamu bisa menulis, mengedit, dan menghapus berita.
+- Halaman admin: `/masuk`. Setelah masuk, ada dua tab: **Berita** (tulis, edit, hapus berita) dan **Galeri** (unggah dan hapus foto galeri).
 - Berita disimpan di database Redis (Upstash) yang disambungkan ke Vercel, jadi semua pengunjung melihat berita yang sama.
 - Login diperiksa di server (folder `api/`), bukan di browser, jadi sandi tidak tampak di kode halaman.
 
@@ -38,3 +38,10 @@ Setelah mengisi, deploy ulang. Variabel ini menggantikan akun cadangan di kode.
 2. Isi judul, kategori, tanggal, dan isi berita. Pisahkan paragraf dengan satu baris kosong.
 3. Gambar sampul boleh dikosongkan. Gambar otomatis dikecilkan.
 4. Klik **Terbitkan**. Berita muncul di `/berita` dan di beranda dalam beberapa detik.
+
+## Cara menambah foto galeri
+Ada dua cara, dan keduanya bisa dipakai bersamaan:
+1. **Lewat halaman admin (paling mudah):** masuk di `/masuk`, buka tab **Galeri**, pilih satu atau beberapa foto, isi keterangan (boleh kosong), lalu klik **Unggah ke galeri**. Foto otomatis dikecilkan dan tampil paling depan di galeri beranda. Maksimal 300 foto.
+2. **Lewat kode:** simpan foto di folder `images/`, lalu salin satu baris `div.tile` di bagian galeri `index.html`. Ukuran kotak ditentukan class: `tile` (biasa), `tile tall` (foto tegak), `tile wide` (foto panorama), `tile big` (kotak besar).
+
+Foto yang diunggah lewat admin bisa dihapus atau diubah keterangannya di tab Galeri. Foto bawaan yang tertulis di kode hanya bisa diubah lewat file `index.html`.
