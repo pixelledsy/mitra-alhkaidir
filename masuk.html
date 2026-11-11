@@ -15,7 +15,7 @@
 </head>
 <body>
 <header class="top"><div class="wrap"><a class="logo" href="/"><span class="lg" aria-hidden="true"></span><span>Mitra Al-Khaidir<small>Boarding School</small></span></a>
-<nav aria-label="Menu utama"><a href="/#beranda">Beranda</a><a href="/#lembaga">Lembaga</a><a href="/#kehidupan">Kehidupan</a><a href="/berita">Berita</a><a href="/#galeri">Galeri</a><a href="/#ppdb">PPDB</a><a href="/#kontak">Contact</a></nav></div></header>
+<nav aria-label="Menu utama"><a href="/#beranda">Beranda</a><a href="/#lembaga">Lembaga</a><a href="/guru">Guru</a><a href="/#kehidupan">Kehidupan</a><a href="/berita">Berita</a><a href="/#galeri">Galeri</a><a href="/#ppdb">PPDB</a><a href="/#kontak">Contact</a></nav></div></header>
 <main><section class="sec"><div class="wrap">
   <p id="vload" class="nempty">Memeriksa sesi...</p>
 
@@ -34,7 +34,7 @@
     <div class="bar2"><div><h1 style="font-size:2rem">Kelola berita</h1><span style="color:var(--muted)">Masuk sebagai <b id="who"></b></span></div>
       <div class="row2"><a class="btn ghost sm" href="/berita" target="_blank" rel="noopener">Lihat halaman berita</a><button class="btn ghost sm" id="out" type="button">Keluar</button></div></div>
     <div class="warn" id="dbwarn" hidden><b>Penyimpanan berita belum aktif.</b> Berita belum bisa disimpan sampai database Redis disambungkan ke proyek Vercel. Ikuti langkah di <code>PANDUAN-ADMIN.md</code>, lalu deploy ulang.</div>
-    <div class="nchips tabsn" id="tabs" role="group" aria-label="Bagian"><button type="button" id="tn" aria-pressed="true">Berita</button><button type="button" id="tg" aria-pressed="false">Galeri</button></div>
+    <div class="nchips tabsn" id="tabs" role="group" aria-label="Bagian"><button type="button" id="tn" aria-pressed="true">Berita</button><button type="button" id="tg" aria-pressed="false">Galeri</button><button type="button" id="ts" aria-pressed="false">Guru</button><button type="button" id="tj" aria-pressed="false">Jadwal</button></div>
     <div id="pnews"><div class="adm">
       <div class="panelc"><h2 id="ft">Tulis berita baru</h2>
         <form id="fn">
@@ -66,6 +66,35 @@
       <div class="panelc"><h2>Foto yang diunggah</h2><div class="gadm" id="gl"><p class="nempty">Memuat...</p></div>
         <p style="color:var(--muted);font-size:.88rem;margin:1rem 0 0">Foto bawaan yang tertulis langsung di kode (folder <code>images</code>) tidak muncul di sini. Foto yang kamu unggah tampil paling depan di galeri.</p></div>
     </div></div>
+
+    <div id="pstaff" hidden><div class="adm">
+      <div class="panelc"><h2 id="sft">Tambah data pengelola</h2>
+        <form id="fs">
+          <label class="fld">Nama lengkap (beserta gelar)<input id="sn" maxlength="80" required></label>
+          <label class="fld">Jabatan<input id="sr" maxlength="100" required placeholder="Contoh: Kepala Madrasah"></label>
+          <div class="row2" style="align-items:flex-start;gap:1rem">
+            <label class="fld" style="flex:1;min-width:10rem">Lembaga<select id="sg"></select></label>
+            <label class="fld" style="flex:1;min-width:10rem">Urutan tampil<input type="number" id="so" value="10" min="-999" max="999"><small>Angka kecil tampil lebih dulu.</small></label>
+          </div>
+          <label class="fld">Foto (boleh dikosongkan)<input type="file" id="sp" accept="image/*"><small>Foto otomatis dipotong persegi dan dikecilkan.</small></label>
+          <img id="spv" class="spv" alt="Pratinjau foto" hidden>
+          <label class="fld" id="srmw" hidden style="font-weight:400"><input type="checkbox" id="srm" style="display:inline;width:auto;margin-right:.5rem">Hapus foto</label>
+          <div class="row2"><button class="btn gold" type="submit" id="ssv">Simpan</button><button class="btn ghost" type="button" id="scn" hidden>Batal edit</button></div>
+          <p class="err" id="sm" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="panelc"><h2>Daftar pengelola</h2><ul class="alist" id="sl"><li>Memuat...</li></ul>
+        <p style="margin:1rem 0 0"><a href="/guru" target="_blank" rel="noopener">Lihat halaman Profil Guru</a></p></div>
+    </div></div>
+
+    <div id="psched" hidden><div class="panelc" style="max-width:48rem">
+      <h2>Jadwal harian</h2>
+      <p class="stitle">Jadwal ini tampil di bagian "Kehidupan santri" di beranda dan mengikuti jam perangkat pengunjung. Isi jam mulai tiap kegiatan. Kegiatan berlangsung sampai jam mulai kegiatan berikutnya, dan urutannya dirapikan otomatis. <b id="jinfo"></b></p>
+      <div id="srows"></div>
+      <div class="row2"><button type="button" class="btn ghost sm" id="sadd">+ Tambah kegiatan</button></div>
+      <div class="row2" style="margin-top:1.2rem"><button class="btn gold" type="button" id="ssave">Simpan jadwal</button><button class="btn ghost" type="button" id="sreset">Kembalikan ke jadwal awal</button></div>
+      <p class="err" id="jm" role="status" aria-live="polite"></p>
+    </div></div>
   </div>
 </div></section></main>
 <footer><div class="wrap"><span>&copy; 2026 Yayasan Mitra Al-Khaidir. Seluruh hak cipta dilindungi.</span><span><a href="/">Kembali ke beranda</a> | <a href="/masuk">Masuk admin</a></span></div></footer>
@@ -81,7 +110,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function today(){return new Date(Date.now()+7*36e5).toISOString().slice(0,10)}
   function msg(t,ok){var e=$('em');e.textContent=t;e.className='err'+(ok?' ok':'')}
   function reset(){editId=null;img=undefined;$('fn').reset();$('d').value=today();$('pv').hidden=true;$('rmw').hidden=true;$('ft').textContent='Tulis berita baru';$('sv').textContent='Terbitkan';$('cn').hidden=true}
-  function enter(s){view('dash');$('who').textContent=s.user;$('dbwarn').hidden=!!s.db;reset();list();glist();tab('n')}
+  function enter(s){view('dash');$('who').textContent=s.user;$('dbwarn').hidden=!!s.db;reset();list();glist();slist();jload();tab('n')}
   api('/api/session').then(function(s){s.auth?enter(s):view('login')}).catch(function(){view('login')});
 
   $('fl').addEventListener('submit',function(e){e.preventDefault();var b=$('bl');b.disabled=true;$('el').textContent='';
@@ -122,8 +151,9 @@ document.addEventListener('DOMContentLoaded',function(){
       .then(function(){var was=editId;reset();list();msg(was?'Perubahan disimpan.':'Berita berhasil diterbitkan.',true)}).catch(fail).then(function(){b.disabled=false})});
 
   /* Galeri */
-  function tab(t){$('pnews').hidden=t!=='n';$('pgal').hidden=t!=='g';$('tn').setAttribute('aria-pressed',t==='n');$('tg').setAttribute('aria-pressed',t==='g')}
-  $('tn').onclick=function(){tab('n')};$('tg').onclick=function(){tab('g')};
+  var TABS={n:['pnews','tn'],g:['pgal','tg'],s:['pstaff','ts'],j:['psched','tj']};
+  function tab(t){for(var k in TABS){$(TABS[k][0]).hidden=k!==t;$(TABS[k][1]).setAttribute('aria-pressed',k===t)}}
+  Object.keys(TABS).forEach(function(k){$(TABS[k][1]).onclick=function(){tab(k)}});
   function gmsg(t,ok){var e=$('gm');e.textContent=t;e.className='err'+(ok?' ok':'')}
   function glist(){api('/api/gallery?_='+Date.now()).then(function(r){var box=$('gl');box.textContent='';
     if(!r.items.length){box.appendChild(N.el('p','nempty','Belum ada foto yang diunggah lewat halaman ini.'));return}
@@ -142,6 +172,52 @@ document.addEventListener('DOMContentLoaded',function(){
       shrink(files[i++],1400,function(r){if(!r){bad++;return next()}
         api('/api/gallery',{method:'POST',body:JSON.stringify({imageData:r.d,w:r.w,h:r.h,caption:cap})}).then(function(){ok++}).catch(function(x){bad++;if(x.status===401)fail(x)}).then(next)})
     })()});
+
+  /* Guru / pengelola */
+  var sEdit=null,sImg,GR=['Yayasan','Pondok Pesantren','SMP Islam','Madrasah Aliyah'];
+  GR.forEach(function(g){var o=document.createElement('option');o.value=o.textContent=g;$('sg').appendChild(o)});
+  function smsg(t,ok){var e=$('sm');e.textContent=t;e.className='err'+(ok?' ok':'')}
+  function sreset(){sEdit=null;sImg=undefined;$('fs').reset();$('so').value=10;$('spv').hidden=true;$('srmw').hidden=true;$('sft').textContent='Tambah data pengelola';$('ssv').textContent='Simpan';$('scn').hidden=true}
+  function crop(file,size,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){
+    var m=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=size;
+    c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,size,size);
+    var q=.82,mt='image/webp',d=c.toDataURL(mt,q);if(d.indexOf('data:image/webp')!==0){mt='image/jpeg';d=c.toDataURL(mt,q)}
+    while(d.length>230000&&q>.35){q-=.1;d=c.toDataURL(mt,q)}cb(d.length>250000?null:d)};
+    im.onerror=function(){cb(null)};im.src=fr.result};fr.readAsDataURL(file)}
+  $('sp').onchange=function(){var f=this.files[0];if(!f)return;smsg('Memproses foto...');
+    crop(f,400,function(d){if(!d){sImg=undefined;smsg('Foto tidak bisa dipakai. Coba foto lain.');return}sImg=d;$('spv').src=d;$('spv').hidden=false;$('spv').style.opacity=1;$('srm').checked=false;smsg('Foto siap.',true)})};
+  $('srm').onchange=function(){sImg=this.checked?null:undefined;$('spv').style.opacity=this.checked?.35:1};
+  $('scn').onclick=function(){sreset();smsg('')};
+  function slist(){api('/api/staff?_='+Date.now()).then(function(r){var ul=$('sl');ul.textContent='';
+    if(!r.items.length){var l0=document.createElement('li');l0.textContent='Belum ada data.';ul.appendChild(l0);return}
+    r.items.forEach(function(p){var li=document.createElement('li');
+      var b=document.createElement('b');b.textContent=p.name;var s2=document.createElement('span');s2.textContent=p.role+' | '+p.group+' | urutan '+p.order;
+      var row=N.el('div','row2');var ed=N.el('button','btn ghost sm','Edit');ed.type='button';
+      ed.onclick=function(){sEdit=p.id;sImg=undefined;$('sn').value=p.name;$('sr').value=p.role;$('sg').value=p.group;$('so').value=p.order;$('sp').value='';$('srm').checked=false;
+        $('spv').hidden=!p.photo;if(p.photo)$('spv').src=p.photo;$('spv').style.opacity=1;$('srmw').hidden=!p.photo;$('sft').textContent='Edit data pengelola';$('ssv').textContent='Simpan perubahan';$('scn').hidden=false;smsg('');window.scrollTo({top:0,behavior:'smooth'})};
+      var dl=N.el('button','btn red sm','Hapus');dl.type='button';dl.onclick=function(){if(confirm('Hapus data ini?\n\n'+p.name))api('/api/staff?id='+encodeURIComponent(p.id),{method:'DELETE'}).then(function(){if(sEdit===p.id)sreset();slist();smsg('Data dihapus.',true)}).catch(fail)};
+      row.appendChild(ed);row.appendChild(dl);li.appendChild(b);li.appendChild(s2);li.appendChild(row);ul.appendChild(li)})
+  }).catch(function(x){var ul=$('sl');ul.textContent='';var li=document.createElement('li');li.textContent=x.message;ul.appendChild(li)})}
+  $('fs').addEventListener('submit',function(e){e.preventDefault();var b=$('ssv');b.disabled=true;smsg('Menyimpan...');
+    var p={name:$('sn').value.trim(),role:$('sr').value.trim(),group:$('sg').value,order:+$('so').value};if(sImg!==undefined)p.photoData=sImg;
+    api(sEdit?'/api/staff?id='+encodeURIComponent(sEdit):'/api/staff',{method:sEdit?'PUT':'POST',body:JSON.stringify(p)})
+      .then(function(){var was=sEdit;sreset();slist();smsg(was?'Perubahan disimpan.':'Data ditambahkan.',true)}).catch(function(x){if(x.status===401)fail(x);else smsg(x.message)}).then(function(){b.disabled=false})});
+
+  /* Jadwal harian */
+  function jmsg(t,ok){var e=$('jm');e.textContent=t;e.className='err'+(ok?' ok':'')}
+  function row(it){var d=document.createElement('div');d.className='srow';
+    var t=document.createElement('input');t.type='time';t.value=it.t||'';t.setAttribute('aria-label','Jam mulai');
+    var l=document.createElement('input');l.maxLength=90;l.value=it.l||'';l.placeholder='Nama kegiatan';l.setAttribute('aria-label','Nama kegiatan');
+    var x=N.el('button','btn red sm','Hapus');x.type='button';x.onclick=function(){d.remove()};
+    d.appendChild(t);d.appendChild(l);d.appendChild(x);return d}
+  function collect(){var out=[];$('srows').querySelectorAll('.srow').forEach(function(r){var i=r.querySelectorAll('input');if(i[0].value||i[1].value.trim())out.push({t:i[0].value,l:i[1].value.trim()})});return out}
+  function jload(){api('/api/schedule?_='+Date.now()).then(function(r){var box=$('srows');box.textContent='';r.items.forEach(function(it){box.appendChild(row(it))});
+    $('jinfo').textContent=r.custom?'Saat ini memakai jadwal buatan admin.':'Saat ini memakai jadwal awal bawaan.'}).catch(function(x){jmsg(x.message)})}
+  $('sadd').onclick=function(){var r=row({t:'',l:''});$('srows').appendChild(r);r.querySelector('input').focus()};
+  $('ssave').onclick=function(){var b=this;b.disabled=true;jmsg('Menyimpan...');
+    api('/api/schedule',{method:'PUT',body:JSON.stringify({items:collect()})}).then(function(r){var box=$('srows');box.textContent='';r.items.forEach(function(it){box.appendChild(row(it))});$('jinfo').textContent='Saat ini memakai jadwal buatan admin.';jmsg('Jadwal disimpan. Beranda memakai jadwal ini.',true)})
+      .catch(function(x){if(x.status===401)fail(x);else jmsg(x.message)}).then(function(){b.disabled=false})};
+  $('sreset').onclick=function(){if(confirm('Kembalikan ke jadwal awal bawaan? Jadwal buatanmu akan dihapus.'))api('/api/schedule',{method:'DELETE'}).then(function(){jload();jmsg('Jadwal dikembalikan ke awal.',true)}).catch(fail)};
 });
 </script>
 </body>
